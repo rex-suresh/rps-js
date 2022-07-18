@@ -1,6 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
-const cookieSession = require('cookie-session');
+const expressSession = require('express-session');
 
 const app = express();
 const game = {};
@@ -13,13 +13,11 @@ const registerChoice = (game) => (req, res, next) => {
 
 const registerUser = (req, res, next) => {
   req.session.name = req.body.name;
-  console.log(req.session);
   res.redirect('/');
 };
 
 const serveRegisterPage = (req, res, next) => {
   const name = req.session.name;
-  console.log(req.session.name);
   if (name) {
     next();
     return;
@@ -29,9 +27,10 @@ const serveRegisterPage = (req, res, next) => {
 
 app.use(morgan(':method :url :status'));
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieSession({
-  name: 'sessionId',
-  keys: ['water']
+app.use(expressSession({
+  secret: 'water',
+  resave: false,
+  saveUninitialized: false
 }));
 app.post('/register', registerUser);
 app.use('/', serveRegisterPage);
